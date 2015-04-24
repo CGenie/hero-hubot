@@ -13,5 +13,6 @@
   "hubot-business-cat",
   "hubot-plusplus",
   "hubot-standup-alarm",
-  "hubot-factoids"
+  "hubot-factoids",
+  "hubot-pubsub"
 ]
