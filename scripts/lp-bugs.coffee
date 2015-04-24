@@ -10,7 +10,7 @@
 
 module.exports = (robot) ->
   robot.hear /\#(\d+)/g, (res) ->
-      res.send ("https://bugs.launchpad.net/bugs/#{bugNumber}" for bugNumber in res.match).join("\n")
+      res.send ("https://bugs.launchpad.net/bugs/#{bugNumber.replace('#', '')}" for bugNumber in res.match).join("\n")
 
   # robot.hear /badger/i, (res) ->
   #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
