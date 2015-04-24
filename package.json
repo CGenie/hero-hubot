@@ -8,6 +8,7 @@
     "hubot": "^2.12.0",
     "hubot-business-cat": "^1.1.19",
     "hubot-diagnostics": "0.0.1",
+    "hubot-factoids": "^0.2.6",
     "hubot-google-images": "^0.1.4",
     "hubot-google-translate": "^0.1.0",
     "hubot-help": "^0.1.1",
