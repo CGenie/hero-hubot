@@ -1,16 +1,55 @@
 # Description:
-#   Example scripts for you to examine and try out.
+#   Launchpad integration
 #
 # Notes:
-#   They are commented out by default, because most of them are pretty silly and
-#   wouldn't be useful and amusing enough for day to day huboting.
-#   Uncomment the ones you want to try and experiment with.
+#   #XXX -- display info about bug number XXX
 #
 #   These are from the scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
 
+APIDomain = 'api.launchpad.net'
+LaunchpadAPIUrl = 'https://' + APIDomain + '/1.0/'
+LaunchpadUrl = 'https://launchpad.net/'
+
+URLHelpers =
+  launchpad:
+    bug: (bugNumber) -> LaunchpadUrl + 'bugs/' + bugNumber
+    project: (name) -> LaunchpadUrl + name
+    user: (username) -> LaunchpadUrl + '~' + username
+  launchpadApi:
+    bug: (bugNumber) -> LaunchpadAPIUrl + 'bugs/' + bugNumber
+    user: (username) -> LaunchpadAPIUrl + '~' + username
+    bugNumberFromURL: (url) ->
+      match = (url || '').match(/^.*\+bug\/(\d+).*/)
+      return match && match[1]
+    milestoneFromURL: (url) ->
+      s = url.split('/')
+
+      return s[s.length - 1]
+
+
 module.exports = (robot) ->
   robot.hear /\#(\d+)/g, (res) ->
-      res.send ("https://bugs.launchpad.net/bugs/#{bugNumber.replace('#', '')}" for bugNumber in res.match).join("\n")
+    showBugInfo = (bugNumber) ->
+      robot.http(URLHelpers.launchpadApi.bug(bugNumber)).get() (e, r, b) ->
+        console.log(e)
+        console.log(b)
+
+        bugInfo = JSON.parse(b)
+
+        console.log(bugInfo.bug_tasks_collection_link)
+
+        robot.http(bugInfo.bug_tasks_collection_link).get() (ebt, rbt, bbt) ->
+          bugTasks = JSON.parse(bbt)
+
+          formatEntry = (entry) -> '[' + URLHelpers.launchpadApi.milestoneFromURL(entry.milestone_link) + ', ' + entry.status + ', ' + entry.importance + ']'
+
+          priorities = (formatEntry(entry) for entry in bugTasks.entries)
+          msg = 'Bug ' + bugNumber + ' ' + priorities.join(' :: ') + ' -> '
+          msg += URLHelpers.launchpad.bug(bugNumber)
+
+          res.reply msg
+
+    (showBugInfo(bugNumber.replace('#', '')) for bugNumber in res.match).join("\n")
 
   # robot.hear /badger/i, (res) ->
   #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
