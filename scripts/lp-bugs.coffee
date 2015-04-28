@@ -19,47 +19,57 @@ URLHelpers =
     bug: (bugNumber) -> LaunchpadAPIUrl + 'bugs/' + bugNumber
     user: (username) -> LaunchpadAPIUrl + '~' + username
     bugNumberFromURL: (url) ->
-      match = (url || '').match(/^.*\+bug\/(\d+).*/)
+      match = (url || '').match(/^http.*?launchpad\.net.*?\/\+?bugs?\/(\d+).*/)
+
       return match && match[1]
+
     milestoneFromURL: (url) ->
       s = url.split('/')
 
       return s[s.length - 1]
+
     userFromURL: (url) ->
       s = url.split('/')
 
       return s[s.length - 1].replace('~', '')
 
+showBugInfo = (robot, res, bugNumber) ->
+  robot.http(URLHelpers.launchpadApi.bug(bugNumber)).get() (e, r, b) ->
+    console.log(e)
+    console.log(b)
+
+    bugInfo = JSON.parse(b)
+
+    console.log(bugInfo.bug_tasks_collection_link)
+
+    robot.http(bugInfo.bug_tasks_collection_link).get() (ebt, rbt, bbt) ->
+      bugTasks = JSON.parse(bbt)
+
+      formatEntry = (entry) -> '[' + 'milesetone :: ' + URLHelpers.launchpadApi.milestoneFromURL(entry.milestone_link) + ', ' +
+        'status :: ' + entry.status + ', ' +
+        'assignee :: ' + URLHelpers.launchpadApi.userFromURL(entry.assignee_link) + ', ' +
+        'importance :: ' + entry.importance + ']'
+
+      priorities = (formatEntry(entry) for entry in bugTasks.entries)
+      msg = '```'
+      msg += 'Bug ' + bugNumber + ' :: ' + bugInfo.title  + '\n'
+      msg += priorities.join('\n') + '\n'
+      msg += URLHelpers.launchpad.bug(bugNumber)
+      msg += '```'
+
+      res.reply msg
+
 
 module.exports = (robot) ->
   robot.hear /\#(\d+)/g, (res) ->
-    showBugInfo = (bugNumber) ->
-      robot.http(URLHelpers.launchpadApi.bug(bugNumber)).get() (e, r, b) ->
-        console.log(e)
-        console.log(b)
+    (showBugInfo(robot, res, bugNumber.replace('#', '')) for bugNumber in res.match)
 
-        bugInfo = JSON.parse(b)
+  # https://launchpad.net/bugs/XXXX
+  # https://bugs.launchpad.net/fuel/+bug/XXXX
 
-        console.log(bugInfo.bug_tasks_collection_link)
-
-        robot.http(bugInfo.bug_tasks_collection_link).get() (ebt, rbt, bbt) ->
-          bugTasks = JSON.parse(bbt)
-
-          formatEntry = (entry) -> '[' + 'milesetone :: ' + URLHelpers.launchpadApi.milestoneFromURL(entry.milestone_link) + ', ' +
-                                         'status :: ' + entry.status + ', ' +
-                                         'assignee :: ' + URLHelpers.launchpadApi.userFromURL(entry.assignee_link) + ', ' +
-                                         'importance :: ' + entry.importance + ']'
-
-          priorities = (formatEntry(entry) for entry in bugTasks.entries)
-          msg = '```'
-          msg += 'Bug ' + bugNumber + ' :: ' + bugInfo.title  + '\n'
-          msg += priorities.join('\n') + '\n'
-          msg += URLHelpers.launchpad.bug(bugNumber)
-          msg += '```'
-
-          res.reply msg
-
-    (showBugInfo(bugNumber.replace('#', '')) for bugNumber in res.match).join("\n")
+  robot.hear /https?:\/\/.*?launchpad\.net.*?\/\+?bugs?\/(\d+)/g, (res) ->
+    console.log(res.match)
+    (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugLink)) for bugLink in res.match)
 
   # robot.hear /badger/i, (res) ->
   #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
