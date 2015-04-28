@@ -51,8 +51,10 @@ module.exports = (robot) ->
                                          'importance :: ' + entry.importance + ']'
 
           priorities = (formatEntry(entry) for entry in bugTasks.entries)
-          msg = 'Bug ' + bugNumber + ' ' + priorities.join(' :: ') + ' -> '
-          msg += URLHelpers.launchpad.bug(bugNumber)
+          msg = '```'
+          msg += 'Bug ' + bugNumber + ' -> ' + URLHelpers.launchpad.bug(bugNumber) + '\n'
+          msg += priorities.join('\n')
+          msg += '```'
 
           res.reply msg
 
