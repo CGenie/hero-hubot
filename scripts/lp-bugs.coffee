@@ -25,6 +25,10 @@ URLHelpers =
       s = url.split('/')
 
       return s[s.length - 1]
+    userFromURL: (url) ->
+      s = url.split('/')
+
+      return s[s.length - 1].replace('~', '')
 
 
 module.exports = (robot) ->
@@ -41,7 +45,10 @@ module.exports = (robot) ->
         robot.http(bugInfo.bug_tasks_collection_link).get() (ebt, rbt, bbt) ->
           bugTasks = JSON.parse(bbt)
 
-          formatEntry = (entry) -> '[' + URLHelpers.launchpadApi.milestoneFromURL(entry.milestone_link) + ', ' + entry.status + ', ' + entry.importance + ']'
+          formatEntry = (entry) -> '[' + 'milesetone :: ' + URLHelpers.launchpadApi.milestoneFromURL(entry.milestone_link) + ', ' +
+                                         'status :: ' + entry.status + ', ' +
+                                         'owner :: ' + URLHelpers.launchpadApi.userFromURL(entry.assignee_link) + ', ' +
+                                         'importance :: ' + entry.importance + ']'
 
           priorities = (formatEntry(entry) for entry in bugTasks.entries)
           msg = 'Bug ' + bugNumber + ' ' + priorities.join(' :: ') + ' -> '
