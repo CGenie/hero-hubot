@@ -47,7 +47,7 @@ module.exports = (robot) ->
 
           formatEntry = (entry) -> '[' + 'milesetone :: ' + URLHelpers.launchpadApi.milestoneFromURL(entry.milestone_link) + ', ' +
                                          'status :: ' + entry.status + ', ' +
-                                         'owner :: ' + URLHelpers.launchpadApi.userFromURL(entry.assignee_link) + ', ' +
+                                         'assignee :: ' + URLHelpers.launchpadApi.userFromURL(entry.assignee_link) + ', ' +
                                          'importance :: ' + entry.importance + ']'
 
           priorities = (formatEntry(entry) for entry in bugTasks.entries)
