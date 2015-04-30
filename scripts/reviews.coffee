@@ -34,7 +34,11 @@ showReviewInfo = (robot, res, reviewNumber) ->
         #approvals = [reviewer.approvals['Code-Review'], reviewer.approvals['Verified']]
         console.log(reviewer.name, reviewer.approvals)
         approvals = for k, v of reviewer.approvals
-          if k == 'Code-Review' then v else "#{k}: #{v}"
+          if parseInt(v) != 0
+            if k == 'Code-Review' then v else "#{k}: #{v}"
+          else
+            null
+        approvals = (a for a in approvals when a)
         if approvals.length then ("#{reviewer.name} " + approvals.join(" ")) else null
 
       msg = '```'
