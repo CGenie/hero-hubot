@@ -93,26 +93,38 @@ module.exports = (robot) ->
   robot.hear RegExp(LPBugRegexp.source, 'g'), (res) ->
     (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugLink)) for bugLink in res.match)
 
-  robot.respond /(\d+ )?bugs (.*)/, (res) ->
+  robot.respond /(\d+ )?bugs (.* )?(.*)/, (res) ->
     bugCount = res.match[1]
-    username = res.match[2]
+    if bugCount isnt undefined
+      bugCount = parseInt(bugCount)
+    status = res.match[2]
+    if status is undefined
+      status = 'In Progress'
+    else
+      status = status.trim()
+    username = res.match[3]
     console.log('count', bugCount)
+    console.log('status', status)
     console.log('bugs', username)
 
-    robot.http(URLHelpers.launchpadApi.userBugTasks(username, status='In Progress')).get() (e, r, b) ->
+    if bugCount == 0
+      res.reply "0 bugs"
+      return
+
+    robot.http(URLHelpers.launchpadApi.userBugTasks(username, status=status)).get() (e, r, b) ->
       try
         bugTasks = JSON.parse(b)
       catch
         res.reply "ERROR!"
         return
 
-      entries = (bugTask for bugTask in bugTasks.entries when bugTask.status == 'In Progress')
+      entries = (bugTask for bugTask in bugTasks.entries when bugTask.status == status)
       if bugCount
-        entries = entries[..parseInt(bugCount)]
+        entries = entries[..bugCount - 1]
 
       return if not checkBugCount(robot, res, entries)
 
-      res.reply "Total of #{entries.length} In Progress bugs for #{username}"
+      res.reply "Total of #{entries.length} #{status} bugs for #{username}"
 
       (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugTask.bug_link)) for bugTask in entries)
 
