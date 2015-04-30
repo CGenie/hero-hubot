@@ -112,7 +112,7 @@ module.exports = (robot) ->
 
       return if not checkBugCount(robot, res, entries)
 
-      res.reply "Total of #{entries.length} In Progress bugs"
+      res.reply "Total of #{entries.length} In Progress bugs for #{username}"
 
       (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugTask.bug_link)) for bugTask in entries)
 
@@ -127,7 +127,7 @@ module.exports = (robot) ->
 
       return if not checkBugCount(robot, res, entries)
 
-      res.reply "Total of #{entries.length} bugs"
+      res.reply "Total of #{entries.length} bugs for #{username}"
 
       (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugTask.bug_link)) for bugTask in entries)
 
