@@ -74,6 +74,13 @@ showBugInfo = (robot, res, bugNumber) ->
 MAX_USER_BUGS = 15
 
 
+checkBugCount = (robot, res, entries) ->
+  if entries.length > MAX_USER_BUGS
+    res.reply "That's #{entries.length} bugs, no way I'm showing all of them! Your limit is #{MAX_USER_BUGS}!"
+    return false
+  return true
+
+
 module.exports = (robot) ->
   robot.hear /\#(\d+)/g, (res) ->
     (showBugInfo(robot, res, bugNumber.replace('#', '')) for bugNumber in res.match)
@@ -81,18 +88,24 @@ module.exports = (robot) ->
   robot.hear RegExp(LPBugRegexp.source, 'g'), (res) ->
     (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugLink)) for bugLink in res.match)
 
-  robot.respond /bugs (.*)/, (res) ->
-    username = res.match[1]
+  robot.respond /(\d+ )?bugs (.*)/, (res) ->
+    bugCount = res.match[1]
+    username = res.match[2]
+    console.log('count', bugCount)
     console.log('bugs', username)
 
     robot.http(URLHelpers.launchpadApi.userBugTasks(username)).get() (e, r, b) ->
-      bugTasks = JSON.parse(b)
+      try
+        bugTasks = JSON.parse(b)
+      catch
+        res.reply "ERROR!"
+        return
 
       entries = (bugTask for bugTask in bugTasks.entries when bugTask.status == 'In Progress')
+      if bugCount
+        entries = entries[..parseInt(bugCount)]
 
-      if entries.length > MAX_USER_BUGS
-        res.reply "That's #{bugTasks.entries.length} bugs, no way I'm showing all of them! Your limit is #{MAX_USER_BUGS}!"
-        return
+      return if not checkBugCount(robot, res, entries)
 
       (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugTask.bug_link)) for bugTask in entries)
 
@@ -105,9 +118,7 @@ module.exports = (robot) ->
 
       entries = (bugTask for bugTask in bugTasks.entries)
 
-      if entries.length > MAX_USER_BUGS
-        res.reply "That's #{bugTasks.entries.length} bugs, no way I'm showing all of them! Your limit is #{MAX_USER_BUGS}!"
-        return
+      return if not checkBugCount(robot, res, entries)
 
       (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugTask.bug_link)) for bugTask in entries)
 
