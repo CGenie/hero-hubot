@@ -23,6 +23,10 @@ URLHelpers =
   launchpadApi:
     bug: (bugNumber) -> LaunchpadAPIUrl + 'bugs/' + bugNumber
     user: (username) -> LaunchpadAPIUrl + '~' + username
+    userBugTasks: (username) ->
+      url = URLHelpers.launchpadApi.user(username)
+
+      return url + "?ws.op=searchTasks&assignee=" + encodeURIComponent(url)
     bugNumberFromURL: (url) ->
       match = (url || '').match(LPBugRegexp)
 
@@ -34,18 +38,20 @@ URLHelpers =
       return s[s.length - 1]
 
     userFromURL: (url) ->
+      return 'NONE' if not url
+
       s = url.split('/')
 
       return s[s.length - 1].replace('~', '')
 
 showBugInfo = (robot, res, bugNumber) ->
   robot.http(URLHelpers.launchpadApi.bug(bugNumber)).get() (e, r, b) ->
-    console.log(e)
-    console.log(b)
+    #console.log(e)
+    #console.log(b)
 
     bugInfo = JSON.parse(b)
 
-    console.log(bugInfo.bug_tasks_collection_link)
+    #console.log(bugInfo.bug_tasks_collection_link)
 
     robot.http(bugInfo.bug_tasks_collection_link).get() (ebt, rbt, bbt) ->
       bugTasks = JSON.parse(bbt)
@@ -70,8 +76,26 @@ module.exports = (robot) ->
     (showBugInfo(robot, res, bugNumber.replace('#', '')) for bugNumber in res.match)
 
   robot.hear RegExp(LPBugRegexp.source, 'g'), (res) ->
-    console.log(res.match)
     (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugLink)) for bugLink in res.match)
+
+  robot.respond /bugs (.*)/, (res) ->
+    username = res.match[1]
+    console.log('bugs', username)
+
+    robot.http(URLHelpers.launchpadApi.userBugTasks(username)).get() (e, r, b) ->
+      bugTasks = JSON.parse(b)
+
+      (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugTask.bug_link)) for bugTask in bugTasks.entries when bugTask.status == 'In Progress')
+
+  robot.respond /all bugs (.*)/, (res) ->
+    username = res.match[1]
+    console.log('all bugs', username)
+
+    robot.http(URLHelpers.launchpadApi.userBugTasks(username)).get() (e, r, b) ->
+      bugTasks = JSON.parse(b)
+
+      (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugTask.bug_link)) for bugTask in bugTasks.entries)
+
 
   # robot.hear /badger/i, (res) ->
   #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"

@@ -3,6 +3,9 @@
 #
 # Notes:
 #   https://review.openstack.org/#/c/xxx/ -- display info about review number xxx
+#   bugs <username> -- display info about open bugs of user <username>
+#   all bugs <username> -- display info about all bugs of user <username>
+
 
 ReviewNumberURLRegex = /http.*?review\.openstack\.org\/.*?(\d+)/
 
