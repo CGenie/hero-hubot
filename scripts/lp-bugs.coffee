@@ -23,10 +23,15 @@ URLHelpers =
   launchpadApi:
     bug: (bugNumber) -> LaunchpadAPIUrl + 'bugs/' + bugNumber
     user: (username) -> LaunchpadAPIUrl + '~' + username
-    userBugTasks: (username) ->
+    userBugTasks: (username, status='In Progress') ->
       url = URLHelpers.launchpadApi.user(username)
 
-      return url + "?ws.op=searchTasks&assignee=" + encodeURIComponent(url)
+      url = url + "?ws.op=searchTasks&assignee=" + encodeURIComponent(url)
+
+      if status
+        url = url + '&status=' + encodeURIComponent(status)
+
+      return url
     bugNumberFromURL: (url) ->
       match = (url || '').match(LPBugRegexp)
 
@@ -94,7 +99,7 @@ module.exports = (robot) ->
     console.log('count', bugCount)
     console.log('bugs', username)
 
-    robot.http(URLHelpers.launchpadApi.userBugTasks(username)).get() (e, r, b) ->
+    robot.http(URLHelpers.launchpadApi.userBugTasks(username, status='In Progress')).get() (e, r, b) ->
       try
         bugTasks = JSON.parse(b)
       catch
@@ -107,18 +112,22 @@ module.exports = (robot) ->
 
       return if not checkBugCount(robot, res, entries)
 
+      res.reply "Total of #{entries.length} In Progress bugs"
+
       (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugTask.bug_link)) for bugTask in entries)
 
   robot.respond /all bugs (.*)/, (res) ->
     username = res.match[1]
     console.log('all bugs', username)
 
-    robot.http(URLHelpers.launchpadApi.userBugTasks(username)).get() (e, r, b) ->
+    robot.http(URLHelpers.launchpadApi.userBugTasks(username, status='')).get() (e, r, b) ->
       bugTasks = JSON.parse(b)
 
       entries = (bugTask for bugTask in bugTasks.entries)
 
       return if not checkBugCount(robot, res, entries)
+
+      res.reply "Total of #{entries.length} bugs"
 
       (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugTask.bug_link)) for bugTask in entries)
 
