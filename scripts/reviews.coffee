@@ -6,6 +6,9 @@
 
 ReviewNumberURLRegex = /http.*?review\.openstack\.org\/.*?(\d+)/
 
+# gerrit is strange, sends )]}' on first line
+stripGerritShit = (shit) -> shit[4..]
+
 URLHelpers =
   gerrit:
     reviewNumberFromURL: (url) ->
@@ -14,6 +17,7 @@ URLHelpers =
       return match && match[1]
   gerritAPI:
     review: (reviewNumber) -> "https://review.openstack.org/changes/#{reviewNumber}/"
+    reviewers: (reviewNumber) -> "https://review.openstack.org/changes/#{reviewNumber}/reviewers/"
 
 showReviewInfo = (robot, res, reviewNumber) ->
   console.log('reviewNumber', reviewNumber)
@@ -21,18 +25,26 @@ showReviewInfo = (robot, res, reviewNumber) ->
     console.log(e)
     console.log(b)
 
-    # gerrit is strange, sends )]}' on first line
-    b = b[4..]
+    reviewInfo = JSON.parse(stripGerritShit(b))
 
-    reviewInfo = JSON.parse(b)
+    robot.http(URLHelpers.gerritAPI.reviewers(reviewNumber)).get() (er, rr, br) ->
+      reviewers = JSON.parse(stripGerritShit(br))
 
-    msg = '```'
-    msg += "Review #{reviewNumber} :: #{reviewInfo.subject} [#{reviewInfo.owner.name}]\n"
-    msg += "project :: #{reviewInfo.project}   topic :: #{reviewInfo.topic}\n"
-    msg += "ChangeID :: #{reviewInfo.change_id}"
-    msg += '```'
+      rs = for reviewer in reviewers
+        #approvals = [reviewer.approvals['Code-Review'], reviewer.approvals['Verified']]
+        console.log(reviewer.name, reviewer.approvals)
+        approvals = for k, v of reviewer.approvals
+          if k == 'Code-Review' then v else "#{k}: #{v}"
+        if approvals.length then ("#{reviewer.name} " + approvals.join(" ")) else null
 
-    res.reply msg
+      msg = '```'
+      msg += "Review #{reviewNumber} :: #{reviewInfo.subject} [#{reviewInfo.owner.name}]\n"
+      msg += "project :: #{reviewInfo.project}   topic :: #{reviewInfo.topic}   status :: #{reviewInfo.status}\n"
+      msg += "ChangeID :: #{reviewInfo.change_id}\n"
+      msg += (r for r in rs when r).join(" :: ")
+      msg += '```'
+
+      res.reply msg
 
 
 module.exports = (robot) ->
