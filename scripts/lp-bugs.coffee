@@ -10,6 +10,11 @@ APIDomain = 'api.launchpad.net'
 LaunchpadAPIUrl = 'https://' + APIDomain + '/1.0/'
 LaunchpadUrl = 'https://launchpad.net/'
 
+
+# https://launchpad.net/bugs/XXXX
+# https://bugs.launchpad.net/fuel/+bug/XXXX
+LPBugRegexp = /https?:\/\/.*?launchpad\.net.*?\/\+?bugs?\/(\d+)/
+
 URLHelpers =
   launchpad:
     bug: (bugNumber) -> LaunchpadUrl + 'bugs/' + bugNumber
@@ -19,7 +24,7 @@ URLHelpers =
     bug: (bugNumber) -> LaunchpadAPIUrl + 'bugs/' + bugNumber
     user: (username) -> LaunchpadAPIUrl + '~' + username
     bugNumberFromURL: (url) ->
-      match = (url || '').match(/^http.*?launchpad\.net.*?\/\+?bugs?\/(\d+).*/)
+      match = (url || '').match(LPBugRegexp)
 
       return match && match[1]
 
@@ -64,10 +69,7 @@ module.exports = (robot) ->
   robot.hear /\#(\d+)/g, (res) ->
     (showBugInfo(robot, res, bugNumber.replace('#', '')) for bugNumber in res.match)
 
-  # https://launchpad.net/bugs/XXXX
-  # https://bugs.launchpad.net/fuel/+bug/XXXX
-
-  robot.hear /https?:\/\/.*?launchpad\.net.*?\/\+?bugs?\/(\d+)/g, (res) ->
+  robot.hear RegExp(LPBugRegexp.source, 'g'), (res) ->
     console.log(res.match)
     (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugLink)) for bugLink in res.match)
 

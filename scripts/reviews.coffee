@@ -6,8 +6,6 @@
 
 ReviewNumberURLRegex = /http.*?review\.openstack\.org\/.*?(\d+)/
 
-console.log(ReviewNumberURLRegex)
-
 URLHelpers =
   gerrit:
     reviewNumberFromURL: (url) ->
@@ -35,25 +33,6 @@ showReviewInfo = (robot, res, reviewNumber) ->
     msg += '```'
 
     res.reply msg
-
-#    console.log(bugInfo.bug_tasks_collection_link)
-#
-#    robot.http(bugInfo.bug_tasks_collection_link).get() (ebt, rbt, bbt) ->
-#      bugTasks = JSON.parse(bbt)
-#
-#      formatEntry = (entry) -> '[' + 'milesetone :: ' + URLHelpers.launchpadApi.milestoneFromURL(entry.milestone_link) + ', ' +
-#        'status :: ' + entry.status + ', ' +
-#        'assignee :: ' + URLHelpers.launchpadApi.userFromURL(entry.assignee_link) + ', ' +
-#        'importance :: ' + entry.importance + ']'
-#
-#      priorities = (formatEntry(entry) for entry in bugTasks.entries)
-#      msg = '```'
-#      msg += 'Bug ' + bugNumber + ' :: ' + bugInfo.title  + '\n'
-#      msg += priorities.join('\n') + '\n'
-#      msg += URLHelpers.launchpad.bug(bugNumber)
-#      msg += '```'
-#
-#      res.reply msg
 
 
 module.exports = (robot) ->
