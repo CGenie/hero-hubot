@@ -88,11 +88,13 @@ module.exports = (robot) ->
     robot.http(URLHelpers.launchpadApi.userBugTasks(username)).get() (e, r, b) ->
       bugTasks = JSON.parse(b)
 
-      if bugTasks.entries.length > MAX_USER_BUGS
-        res.reply "That's #{bugTasks.entries.length} bugs, no way I'm showing all of them!"
+      entries = (bugTask for bugTask in bugTasks.entries when bugTask.status == 'In Progress')
+
+      if entries.length > MAX_USER_BUGS
+        res.reply "That's #{bugTasks.entries.length} bugs, no way I'm showing all of them! Your limit is #{MAX_USER_BUGS}!"
         return
 
-      (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugTask.bug_link)) for bugTask in bugTasks.entries when bugTask.status == 'In Progress')
+      (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugTask.bug_link)) for bugTask in entries)
 
   robot.respond /all bugs (.*)/, (res) ->
     username = res.match[1]
@@ -101,11 +103,13 @@ module.exports = (robot) ->
     robot.http(URLHelpers.launchpadApi.userBugTasks(username)).get() (e, r, b) ->
       bugTasks = JSON.parse(b)
 
-      if bugTasks.entries.length > MAX_USER_BUGS
+      entries = (bugTask for bugTask in bugTasks.entries)
+
+      if entries.length > MAX_USER_BUGS
         res.reply "That's #{bugTasks.entries.length} bugs, no way I'm showing all of them! Your limit is #{MAX_USER_BUGS}!"
         return
 
-      (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugTask.bug_link)) for bugTask in bugTasks.entries)
+      (showBugInfo(robot, res, URLHelpers.launchpadApi.bugNumberFromURL(bugTask.bug_link)) for bugTask in entries)
 
 
   # robot.hear /badger/i, (res) ->
