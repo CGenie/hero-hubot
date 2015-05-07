@@ -3,6 +3,7 @@
 #
 # Notes:
 #   #XXX -- display info about bug number XXX
+#   (X) bugs (TYPE) <USER>  -- display (at most <X>) bugs (of type <TYPE>) assigned to <USER>
 #
 #   These are from the scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
 
