@@ -39,6 +39,8 @@ URLHelpers =
       return match && match[1]
 
     milestoneFromURL: (url) ->
+      return 'NONE' if !url
+
       s = url.split('/')
 
       return s[s.length - 1]
