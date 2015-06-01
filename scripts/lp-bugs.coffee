@@ -64,7 +64,7 @@ showBugInfo = (robot, res, bugNumber) ->
     robot.http(bugInfo.bug_tasks_collection_link).get() (ebt, rbt, bbt) ->
       bugTasks = JSON.parse(bbt)
 
-      formatEntry = (entry) -> '[' + 'milesetone :: ' + URLHelpers.launchpadApi.milestoneFromURL(entry.milestone_link) + ', ' +
+      formatEntry = (entry) -> '[' + 'milestone :: ' + URLHelpers.launchpadApi.milestoneFromURL(entry.milestone_link) + ', ' +
         'status :: ' + entry.status + ', ' +
         'assignee :: ' + URLHelpers.launchpadApi.userFromURL(entry.assignee_link) + ', ' +
         'importance :: ' + entry.importance + ']'
