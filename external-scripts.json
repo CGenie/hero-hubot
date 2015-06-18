@@ -13,5 +13,6 @@
   "hubot-plusplus",
   "hubot-standup-alarm",
   "hubot-factoids",
-  "hubot-pubsub"
+  "hubot-pubsub",
+  "hubot-remind"
 ]

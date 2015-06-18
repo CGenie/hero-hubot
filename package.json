@@ -19,6 +19,7 @@
     "hubot-pubsub": "^1.0.2",
     "hubot-pugme": "^0.1.0",
     "hubot-redis-brain": "0.0.2",
+    "hubot-remind": "^0.1.4",
     "hubot-rules": "^0.1.0",
     "hubot-scripts": "^2.5.16",
     "hubot-shipit": "^0.2.0",
