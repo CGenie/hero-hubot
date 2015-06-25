@@ -21,7 +21,13 @@ client = new Twitter {
 
 
 module.exports = (robot) ->
-  robot.hear /^suchar$/g, (res) ->
-    client.get 'statuses/user_timeline', {screen_name: 'suchardnia'}, (error, tweets, response) ->
-      tweet = tweets[Math.floor(Math.random() * tweets.length)]
-      res.reply tweet.text
+  robot.hear /^nowe suchary$/, (res) ->
+    client.get 'statuses/user_timeline', {screen_name: 'suchardnia', count: 200}, (error, tweets, response) ->
+      robot.brain.set 'suchary', {tweets: tweets}
+      res.reply 'Downloaded!'
+
+  robot.hear /^suchar$/, (res) ->
+    suchary = robot.brain.get 'suchary'
+    console.log suchary.tweets.length
+    tweet = suchary.tweets[Math.floor(Math.random() * suchary.tweets.length)]
+    res.reply tweet.text
