@@ -25,6 +25,7 @@
     "hubot-shipit": "^0.2.0",
     "hubot-slack": "^3.3.0",
     "hubot-standup-alarm": "0.0.4",
+    "hubot-xkcd-image": "^1.0.0",
     "hubot-youtube": "git+https://github.com/stephenyeargin/hubot-youtube#d16895bb183cfca8e716010141bbe86e58b2bc38",
     "twitter": "^1.2.5"
   },
