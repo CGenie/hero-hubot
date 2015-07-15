@@ -2,6 +2,7 @@
 #   Suchardnia.pl integration
 #
 # Notes:
+#   nowe suchary -- cache all suchars
 #   suchar -- random suchar
 
 consumer_key = process.env.TWITTER_CONSUMER_KEY
