@@ -15,5 +15,6 @@
   "hubot-factoids",
   "hubot-pubsub",
   "hubot-remind",
+  "hubot-remind-at",
   "hubot-xkcd-image"
 ]
