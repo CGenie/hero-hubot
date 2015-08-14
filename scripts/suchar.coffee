@@ -1,7 +1,7 @@
 # Description:
 #   Suchardnia.pl integration
 #
-# Notes:
+# Commands:
 #   nowe suchary -- cache all suchars
 #   suchar -- random suchar
 

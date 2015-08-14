@@ -1,7 +1,7 @@
 # Description:
 #   http://perelki.net integration
 #
-# Notes:
+# Commands:
 #   dowcip -- random dowcip
 
 cheerio = require 'cheerio'

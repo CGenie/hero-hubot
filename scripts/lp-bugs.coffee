@@ -1,9 +1,9 @@
 # Description:
 #   Launchpad integration
 #
-# Notes:
+# Commands:
 #   #XXX -- display info about bug number XXX
-#   (X) bugs (TYPE) <USER>  -- display (at most <X>) bugs (of type <TYPE>) assigned to <USER>
+#   (X) bugs (TYPE) <USER>  -- display (at most <X>) bugs (of type <TYPE>) assigned to <USER> (for example: 5 bugs Confirmed fuel-python)
 #
 #   These are from the scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
 
@@ -119,6 +119,7 @@ module.exports = (robot) ->
         bugTasks = JSON.parse(b)
       catch
         res.reply "ERROR!"
+        robot.logger.error b
         return
 
       entries = (bugTask for bugTask in bugTasks.entries when bugTask.status == status)
