@@ -25,7 +25,7 @@ module.exports = (robot) ->
     url = "#{CLASSIFIER_URL}/train/#{BUCKET_USERS}/#{user}"
     msg.robot.http(url).header('Content-Type', 'application/json').post(data)
 
-  robot.respond /classify (\w+) (\w+)/, (msg) ->
+  robot.respond /classify (\w+) (.*)/, (msg) ->
     what = msg.match[1]
     text = msg.match[2]
     bucket = "hubot-#{what}"
@@ -43,7 +43,7 @@ module.exports = (robot) ->
       msg.robot.http(url).delete() (err, res, body) ->
         msg.send "Deleted all classifications in bucket #{bucket}"
 
-  robot.respond /classifier-debug (\w+) (\w+)/, (msg) ->
+  robot.respond /classifier-debug (\w+) (.*)/, (msg) ->
     what = msg.match[1]
     category = msg.match[2]
     bucket = "hubot-#{what}"
