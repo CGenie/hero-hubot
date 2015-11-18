@@ -25,6 +25,7 @@
     "hubot-remind-at": "0.0.4",
     "hubot-rules": "^0.1.0",
     "hubot-scripts": "^2.5.16",
+    "hubot-sentry": "0.0.2",
     "hubot-shipit": "^0.2.0",
     "hubot-slack": "^3.4.2",
     "hubot-standup-alarm": "0.0.7",
