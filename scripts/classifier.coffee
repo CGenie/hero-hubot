@@ -11,7 +11,6 @@ module.exports = (robot) ->
     text = msg.match[0]
     if text.indexOf('hubot') == 0
       return
-    #user = msg.user.name
     room = msg.message.room
     url = "#{CLASSIFIER_URL}/train/#{BUCKET}/#{room}"
     data = JSON.stringify {text: text}
@@ -19,8 +18,12 @@ module.exports = (robot) ->
 
   robot.respond /classify (.*)/, (msg) ->
     text = msg.match[1]
-    room = msg.message.room
     url = "#{CLASSIFIER_URL}/classify/#{BUCKET}"
     data = JSON.stringify {text: text}
     msg.robot.http(url).header('Content-Type', 'application/json').post(data) (err, res, body) ->
       msg.send body
+
+  robot.respond /classifier-delete-all/, (msg) ->
+    url = "#{CLASSIFIER_URL}/classify/#{BUCKET}"
+    msg.robot.http(url).delete() (err, res, body) ->
+      msg.send "Deleted all classifications in bucket #{BUCKET}"
