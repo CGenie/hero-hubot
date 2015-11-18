@@ -27,3 +27,9 @@ module.exports = (robot) ->
     url = "#{CLASSIFIER_URL}/classify/#{BUCKET}"
     msg.robot.http(url).delete() (err, res, body) ->
       msg.send "Deleted all classifications in bucket #{BUCKET}"
+
+  robot.respond /classifier-debug (.*)/, (msg) ->
+    room = msg.match[1]
+    url = "#{CLASSIFIER_URL}/debug/#{BUCKET}/#{room}"
+    msg.robot.http(url).get() (err, res, body) ->
+      msg.send body
