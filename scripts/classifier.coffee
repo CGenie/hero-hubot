@@ -9,9 +9,6 @@ BUCKETS = [BUCKET_ROOMS, BUCKET_USERS]
 WHATS = (bucket.replace('hubot-', '') for bucket in BUCKETS).join(', ')
 
 
-get_bucket = (what) ->
-
-
 module.exports = (robot) ->
   robot.hear /.*/, (msg) ->
     text = msg.match[0]
