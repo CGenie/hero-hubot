@@ -34,6 +34,18 @@ module.exports = (robot) ->
     msg.robot.http(url).header('Content-Type', 'application/json').post(data) (err, res, body) ->
       msg.send body
 
+  robot.respond /classifier-similarity (\w+) (\w+) (\w+)/, (msg) ->
+    what = msg.match[1]
+    category1 = msg.match[2]
+    category2 = msg.match[3]
+    bucket = "hubot-#{what}"
+    if BUCKETS.indexOf(bucket) == -1
+      msg.send "Unknown classificator #{what}, pick one of: #{WHATS}"
+      return
+    url = "#{CLASSIFIER_URL}/similarity/#{bucket}/#{category1}/#{category2}"
+    msg.robot.http(url).header('Content-Type', 'application/json').get() (err, res, body) ->
+      msg.send body
+
   robot.respond /classifier-delete-all/, (msg) ->
     for bucket in BUCKETS
       url = "#{CLASSIFIER_URL}/classify/#{bucket}"
