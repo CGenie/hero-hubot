@@ -15,8 +15,8 @@
   "hubot-remind",
   "hubot-remind-at",
   "hubot-rules",
+  "hubot-script-shellcmd",
   "hubot-sentry",
   "hubot-shipit",
-  "hubot-standup-alarm",
   "hubot-xkcd-image"
 ]
